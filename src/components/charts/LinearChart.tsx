@@ -10,7 +10,12 @@ import {
     ResponsiveContainer,
 } from "recharts";
 
-import { StockData } from "@/lib/get-stock-data";
+
+export interface PuntoGrafica {
+    date: string;
+    ventas: number;
+}
+
 import {
     ChartConfig,
     ChartContainer,
@@ -29,7 +34,7 @@ import {
 import { useMediaQuery } from "@/hooks/useMediaQuery"
 
 interface InteractiveStockChartProps {
-    chartData: Promise<StockData[]>;
+    chartData: Promise<PuntoGrafica[]>;
     ticker: string;
     showYAxis?: boolean
 }
@@ -58,13 +63,13 @@ export function InteractiveStockChart({ chartData, showYAxis }: InteractiveStock
 
     const minValue = useMemo(
         () =>
-            Math.min(...formattedData.map((item) => Math.min(item.open, item.close))),
+            Math.min(...formattedData.map((item) => item.ventas)),
         [formattedData]
     );
 
     const maxValue = useMemo(
         () =>
-            Math.max(...formattedData.map((item) => Math.max(item.open, item.close))),
+            Math.max(...formattedData.map((item) => item.ventas)),
         [formattedData]
     );
 
@@ -80,7 +85,7 @@ export function InteractiveStockChart({ chartData, showYAxis }: InteractiveStock
                         left: 10,
                         bottom: 0,
                     }}
-                    
+
                 >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis
@@ -101,7 +106,7 @@ export function InteractiveStockChart({ chartData, showYAxis }: InteractiveStock
                         showYAxis && (
                             <YAxis
                                 domain={[minValue * 0.9, maxValue * 1.1]}
-                                tickFormatter={(value) => `$${value.toFixed(2)}`}
+                                tickFormatter={(value) => `S/ ${value.toFixed(0)}`}
                             />
                         )
                     }

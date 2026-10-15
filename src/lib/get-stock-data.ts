@@ -35,26 +35,33 @@ export interface StockData {
     volume: number;
 }
 
-
 export async function getStockData(ticker = "NVDA"): Promise<StockData[]> {
-    const res = await fetch(getEndpoint(ticker), {
-        headers: {
-            "Content-Type": "application/json",
-        },
-        next: {
-            revalidate: 60,
-        },
-    });
+    try {
+        const res = await fetch(getEndpoint(ticker), {
+            headers: {
+                "Content-Type": "application/json",
+            },
+            next: {
+                revalidate: 60,
+            },
+        });
 
-    const data = await res.json();
+        const data = await res.json();
 
+        if (!data.results || !Array.isArray(data.results)) {
+            console.warn(
+                `[stock-data] Polygon no devolvió resultados para ${ticker}` +
+                    (process.env.POLYGON_API_KEY ? "" : " (falta POLYGON_API_KEY)")
+            );
+            return [];
+        }
 
-    if (!data.results || !Array.isArray(data.results)) {
-        throw new Error("Failed to fetch stock data");
+        return data.results.map((item: any) => ({
+            date: new Date(item.t).toISOString().split("T")[0],
+            ventas: item.h,
+        }));
+    } catch (error) {
+        console.warn("[stock-data] no se pudo consultar Polygon:", error);
+        return [];
     }
-
-    return data.results.map((item: any) => ({
-        date: new Date(item.t).toISOString().split("T")[0],
-        ventas: item.h,
-    }));
 }

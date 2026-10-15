@@ -8,9 +8,7 @@ import {
 } from "@/components/ui/card"
 import { Suspense } from "react";
 import LinearChart from "@/components/charts/LinearChart";
-import { companies } from "@/lib/stock-data";
-import { getStockData } from "@/lib/get-stock-data";
-import { StockSelector } from "@/components/experimental/stock-selector";
+import { getSalesChartData } from "@/lib/get-sales-chart";
 import HalfYearSalesChart from "@/components/charts/HalfYearSalesChart";
 import CustomerGrowthChart from "@/components/charts/CustomersGrowthChart";
 import LastSales from "@/components/dashboard/LastSales";
@@ -23,8 +21,7 @@ export default async function Page({ searchParams }: {searchParams: { ticker?: s
 	const session =await getServerSession(authOptions)
 
 
-	const ticker = searchParams.ticker || companies[0].ticker;
-	const stockData = getStockData(ticker);
+	const datosVentas = getSalesChartData();
 	return (
 		<>
 			<section className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
@@ -34,19 +31,19 @@ export default async function Page({ searchParams }: {searchParams: { ticker?: s
 				<TotalExpenses/>
 			</section>
 
-			<section className="relative w-full space-y-5">  
+			<section className="relative w-full space-y-5">
 				<Card>
 					<CardHeader>
 						<CardTitle>
 							Ventas del año
 						</CardTitle>
-						<div className="w-full flex justify-end">
-							<StockSelector/>
-						</div>
+						<CardDescription>
+							Importe cobrado por día, sin contar ventas pendientes ni canceladas
+						</CardDescription>
 					</CardHeader>
 					<CardContent>
 						<Suspense>
-							<LinearChart chartData={stockData} ticker={ticker} />
+							<LinearChart chartData={datosVentas} ticker="" />
 						</Suspense>
 					</CardContent>
 				</Card>
